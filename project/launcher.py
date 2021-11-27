@@ -3,7 +3,7 @@ import subprocess
 process = []
 
 while True:
-    action = input('Выберите действие: q - выход , s - запустить сервер и клиенты, x - закрыть все окна:')
+    action = input('Выберите действие: q - выход, s - запустить сервер и клиенты, x - закрыть все окна: ')
 
     if action == 'q':
         break
