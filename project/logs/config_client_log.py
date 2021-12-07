@@ -14,7 +14,7 @@ path = os.path.join(path, 'client.log')
 # создаём потоки вывода логов
 steam = logging.StreamHandler(sys.stderr)
 steam.setFormatter(client_formatter)
-steam.setLevel(logging.ERROR)
+steam.setLevel(logging.INFO)
 log_file = logging.FileHandler(path, encoding='utf8')
 log_file.setFormatter(client_formatter)
 
@@ -27,6 +27,6 @@ logger.setLevel(LOGGING_LEVEL)
 # отладка
 if __name__ == '__main__':
     logger.critical('Test critical event')
-    logger.error('Test error ivent')
-    logger.debug('Test debug ivent')
-    logger.info('Test info ivent')
+    logger.error('Test error event')
+    logger.debug('Test debug event')
+    logger.info('Test info event')
