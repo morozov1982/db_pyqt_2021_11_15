@@ -4,12 +4,12 @@ import dis
 class ClientVerifier(type):
     """ Метакласс, выполняющий базовую проверку класса «Клиент» """
 
-    def __init__(self, clsname, bases, clsdict):
+    def __init__(cls, clsname, bases, clsdict):
         methods = []
 
-        for key, value in clsdict.items():
+        for func in clsdict:
             try:
-                instructions = dis.get_instructions(value)
+                instructions = dis.get_instructions(clsdict[func])
             except TypeError:
                 pass
             else:
@@ -26,31 +26,31 @@ class ClientVerifier(type):
             pass
         else:
             raise TypeError('Отсутствуют вызовы функций, работающих с сокетами')
-        type.__init__(self, clsname, bases, clsdict)
+        super().__init__(clsname, bases, clsdict)
 
 
 class ServerVerifier(type):
     """ Метакласс, выполняющий базовую проверку класса «Сервер» """
 
-    def __init__(self, clsname, bases, clsdict):
+    def __init__(cls, clsname, bases, clsdict):
         methods = []
-        attributes = []
+        attrs = []
 
-        for key, value in clsdict.items():
+        for func in clsdict:
             try:
-                instructions = dis.get_instructions(value)
+                instructions = dis.get_instructions(clsdict[func])
             except TypeError:
                 pass
             else:
                 for instruction in instructions:
                     if instruction.opname == 'LOAD_GLOBAL' and instruction.argval not in methods:
                         methods.append(instruction.argval)
-                    if instruction.opname == 'LOAD_ATTR' and instruction.argval not in attributes:
-                        attributes.append(instruction.argval)
+                    if instruction.opname == 'LOAD_ATTR' and instruction.argval not in attrs:
+                        attrs.append(instruction.argval)
 
         if 'connect' in methods:
             raise TypeError('Использование метода connect недопустимо в серверном классе')
-        if not ('SOCK_STREAM' in attributes and 'AF_INET' in attributes):
+        if not ('SOCK_STREAM' in attrs and 'AF_INET' in attrs):
             raise TypeError('Некорректная инициализация сокета')
 
         super().__init__(clsname, bases, clsdict)

@@ -13,7 +13,7 @@ def gui_create_model(db):
     lst.setHorizontalHeaderLabels(['Имя клиента', 'IP адрес', 'Порт', 'Время подключения'])
     for row in list_users:
         user, ip, port, time = row
-        user = QStandardItemModel(user)
+        user = QStandardItem(user)
         user.setEditable(False)
         ip = QStandardItem(ip)
         ip.setEditable(False)
@@ -26,7 +26,7 @@ def gui_create_model(db):
 
 
 # GUI - Функция реализующая заполнение таблицы историей сообщений
-def create_start_model(db):
+def create_stat_model(db):
     hist_list = db.message_history()
     lst = QStandardItemModel()
     lst.setHorizontalHeaderLabels(['Имя клиента', 'Последний вход', 'Сообщений отправлено', 'Сообщений получено'])

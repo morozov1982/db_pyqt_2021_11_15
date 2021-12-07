@@ -1,7 +1,8 @@
 import sys
+import logging
+
 import logs.config_server_log
 import logs.config_client_log
-import logging
 
 # метод определения модуля, источника запуска.
 if sys.argv[0].find('client') == -1:
@@ -16,6 +17,6 @@ def log(func_to_log):
     def log_saver(*args, **kwargs):
         logger.debug(f'Была вызвана функция {func_to_log.__name__} c параметрами {args}, {kwargs}. '
                      f'Вызов из модуля {func_to_log.__module__}')
-        ret = func_to_log(*args , **kwargs)
+        ret = func_to_log(*args, **kwargs)
         return ret
     return log_saver

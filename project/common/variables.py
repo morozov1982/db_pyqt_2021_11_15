@@ -13,7 +13,10 @@ ENCODING = 'utf-8'
 # Текущий уровень логирования
 LOGGING_LEVEL = logging.DEBUG
 # База данных для хранения данных сервера:
-SERVER_DATABASE = 'sqlite:///server_base.db3'
+SERVER_CONFIG = 'server.ini'
+# SERVER_DATABASE = 'sqlite:///server_base.db3'
+
+ATTEMPTS = 5
 
 # Прококол JIM основные ключи:
 ACTION = 'action'

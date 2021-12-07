@@ -2,8 +2,6 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, 
 from sqlalchemy.orm import mapper, sessionmaker
 from datetime import datetime
 
-from common.variables import SERVER_DATABASE
-
 
 class ServerStorage:
     # Все пользователи
@@ -47,9 +45,7 @@ class ServerStorage:
             self.accepted = 0
 
     def __init__(self, path):
-        self.db_engine = create_engine(f'sqlite:///{path}',  # (SERVER_DATABASE, echo=False, pool_recycle=7200)
-                                       echo=False,
-                                       pool_recycle=7200,
+        self.db_engine = create_engine(f'sqlite:///{path}', echo=False, pool_recycle=7200,
                                        connect_args={'check_same_thread': False})
         self.metadata = MetaData()
 

@@ -1,7 +1,7 @@
 import argparse
 import configparser
 import logging
-import os.path
+import os  # .path
 import select
 import socket
 import sys
@@ -9,22 +9,21 @@ import threading
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMessageBox
+from server_gui import MainWindow, gui_create_model, HistoryWindow, ConfigWindow, create_stat_model
 
 import logs.config_server_log
-from decos import log
-from common.variables import DEFAULT_PORT, MAX_CONNECTIONS, DESTINATION, ACTION, USER, ACCOUNT_NAME, PRESENCE, TIME, \
+from common.decos import log
+from common.variables import DESTINATION, ACTION, USER, ACCOUNT_NAME, PRESENCE, TIME, DEFAULT_PORT, \
     RESPONSE_200, RESPONSE_400, ERROR, MESSAGE, SENDER, MESSAGE_TEXT, EXIT, GET_CONTACTS, RESPONSE_202, LIST_INFO, \
     ADD_CONTACT, REMOVE_CONTACT, USERS_REQUEST
 from common.utils import get_message, send_message
 from metaclasses import ServerVerifier
 from descriptors import Port, Addr
-from practice.server_gui import create_stat_model
 
 from server_database import ServerStorage
 
-# Инициализация логирования сервера
-from server_gui import MainWindow, gui_create_model, HistoryWindow, ConfigWindow
 
+# Инициализация логирования сервера
 logger = logging.getLogger('server')
 
 # Флаг: подключён новый пользователь
@@ -73,11 +72,12 @@ class Server(threading.Thread, metaclass=ServerVerifier):
             f'адрес с которого принимаются подключения: {self.addr}. '
             f'Если адрес не указан, принимаются соединения с любых адресов.')
         # Готовим сокет
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind((self.addr, self.port))
-        self.sock.settimeout(0.5)
+        transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        transport.bind((self.addr, self.port))
+        transport.settimeout(0.5)
 
         # Слушаем порт
+        self.sock = transport
         self.sock.listen()  # MAX_CONNECTIONS)
 
     # Обработчик сообщений от клиентов, принимает словарь - сообщение от клиента, проверяет корректность,
@@ -104,13 +104,20 @@ class Server(threading.Thread, metaclass=ServerVerifier):
                 self.clients.remove(client)
                 client.close()
             return
-        # Если это сообщение, то добавляем его в очередь сообщений. Ответ не требуется
+        # Если это сообщение, то добавляем его в очередь сообщений, проверяем наличие в сети и отвечаем
         elif ACTION in message and message[ACTION] == MESSAGE and DESTINATION in message and TIME in message \
                 and SENDER in message and MESSAGE_TEXT in message and self.names[message[SENDER]] == client:
-            self.messages.append(message)
-            self.db.process_message(message[SENDER], message[DESTINATION])
+            if message[DESTINATION] in self.name:
+                self.messages.append(message)
+                self.db.process_message(message[SENDER], message[DESTINATION])
+                send_message(client, RESPONSE_400)
+            else:
+                response = RESPONSE_400
+                response[ERROR] = 'Пользователь не зарегистрирован на сервере'
+                send_message(client, response)
             return
-        # При входе клиента
+
+        # При выходе клиента
         elif ACTION in message and message[ACTION] == EXIT and ACCOUNT_NAME in message \
                 and self.names[message[ACCOUNT_NAME]] == client:
             self.db.user_logout(message[ACCOUNT_NAME])
@@ -122,7 +129,6 @@ class Server(threading.Thread, metaclass=ServerVerifier):
 
             with con_flag_lock:
                 new_connection = True
-
             return
 
         # При запросе контакт-листа
@@ -144,7 +150,7 @@ class Server(threading.Thread, metaclass=ServerVerifier):
             self.db.remove_contact(message[USER], message[ACCOUNT_NAME])
             send_message(client, RESPONSE_200)
 
-        # ПРи запросе известных пользователей
+        # При запросе известных пользователей
         elif ACTION in message and message[ACTION] == USERS_REQUEST and ACCOUNT_NAME in message \
                 and self.names[message[ACCOUNT_NAME]] == client:
             response = RESPONSE_202
@@ -174,6 +180,7 @@ class Server(threading.Thread, metaclass=ServerVerifier):
 
     def run(self):
         # Инициализация сокета
+        global new_connection
         self.init_socket()
 
         while True:
@@ -210,6 +217,8 @@ class Server(threading.Thread, metaclass=ServerVerifier):
                                 del self.names[name]
                                 break
                         self.clients.remove(client_with_message)
+                        with con_flag_lock:
+                            new_connection = True
 
             # Если есть сообщения, обрабатываем каждое
             for message in self.messages:
@@ -220,22 +229,28 @@ class Server(threading.Thread, metaclass=ServerVerifier):
                     self.clients.remove(self.names[message[DESTINATION]])
                     self.db.user_logout(message[DESTINATION])
                     del self.names[message[DESTINATION]]
+                    with con_flag_lock:
+                        new_connection = True
             self.messages.clear()
 
 
-def print_help():
-    print('Поддерживаемые комманды:')
-    print('users - список известных пользователей')
-    print('connected - список подключенных пользователей')
-    print('loghist - история входов пользователя')
-    print('exit - завершение работы сервера.')
-    print('help - вывод справки по поддерживаемым командам')
-
-
-def main():
+def config_load():
     config = configparser.ConfigParser()
     dir_path = os.path.dirname(os.path.realpath(__file__))
     config.read(f"{dir_path}/{'server.ini'}")
+    if 'SETTINGS' in config:
+        return config
+    else:
+        config.add_section('SETTINGS')
+        config.set('SETTINGS', 'default_port', str(DEFAULT_PORT))
+        config.set('SETTINGS', 'listen_address', '')
+        config.set('SETTINGS', 'db_path', '')
+        config.set('SETTINGS', 'db_file', 'server_base.db3')
+        return config
+
+
+def main():
+    config = config_load()
 
     # Загрузка параметров командной строки, если нет параметров, то задаём значения по умоланию
     listen_address, listen_port = arg_parser(config['SETTINGS']['default_port'], config['SETTINGS']['listen_address'])
@@ -299,8 +314,9 @@ def main():
             config['SETTINGS']['listen_address'] = config_window.ip.text()
             if 1023 < port < 65536:
                 config['SETTINGS']['default_port'] = str(port)
+                dir_path = os.path.dirname(os.path.realpath(__file__))
 
-                with open('server.ini', 'w') as conf:
+                with open(f'{dir_path}/server.ini', 'w') as conf:
                     config.write(conf)
                     message.information(config_window, 'OK', 'Настройки успешно сохранены!')
             else:
