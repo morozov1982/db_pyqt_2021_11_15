@@ -1,15 +1,17 @@
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, qApp, QApplication
 
 
-# Стартовый диалог с выбором имени пользователя
 class UserNameDialog(QDialog):
+    """
+    Класс реализующий стартовый диалог с запросом логина и пароля пользователя.
+    """
     def __init__(self):
         super().__init__()
 
         self.ok_pressed = False
 
         self.setWindowTitle('Привет!')
-        self.setFixedSize(175, 93)
+        self.setFixedSize(175, 135)
 
         self.label = QLabel('Введите имя пользователя:', self)
         self.label.move(10, 10)
@@ -20,17 +22,29 @@ class UserNameDialog(QDialog):
         self.client_name.move(10, 30)
 
         self.btn_ok = QPushButton('Начать', self)
-        self.btn_ok.move(10, 60)
+        self.btn_ok.move(10, 105)
         self.btn_ok.clicked.connect(self.click)
 
         self.btn_cancel = QPushButton('Выход', self)
-        self.btn_cancel.move(90, 60)
+        self.btn_cancel.move(90, 105)
         self.btn_cancel.clicked.connect(qApp.exit)
+
+        self.label_password = QLabel('Введите пароль:', self)
+        self.label_password.move(10, 55)
+        self.label_password.setFixedSize(150, 15)
+
+        self.client_password = QLineEdit(self)
+        self.client_password.setFixedSize(154, 20)
+        self.client_password.move(10, 75)
+        self.client_password.setEchoMode(QLineEdit.Password)
 
         self.show()
 
     def click(self):
-        if self.client_name.text():
+        """
+        Метод обрабтчик кнопки ОК.
+        """
+        if self.client_name.text() and self.client_password.text:
             self.ok_pressed = True
             qApp.exit()
 

@@ -6,8 +6,12 @@ from PyQt5.QtWidgets import QDialog, QLabel, QComboBox, QPushButton
 logger = logging.getLogger('client')
 
 
-# Диалог выбора контакта для добавления
 class AddContactDialog(QDialog):
+    """
+    Диалог добавления пользователя в список контактов.
+    Предлагает пользователю список возможных контактов и добавляет выбранный в контакты.
+    """
+
     def __init__(self, transport, db):
         super().__init__()
         self.transport = transport
@@ -42,16 +46,23 @@ class AddContactDialog(QDialog):
         self.possible_contacts_update()
         self.btn_refresh.clicked.connect(self.update_possible_contacts)
 
-    # Заполняет список возможных контактов разницей между всеми пользователями
     def possible_contacts_update(self):
+        """
+        Метод заполнения списка возможных контактов.
+        Создаёт список всех зарегистрированных пользователей
+        за исключением уже добавленных в контакты и самого себя.
+        """
         self.selector.clear()
         contacts_list = set(self.db.get_contacts())
         users_list = set(self.db.get_users())
         users_list.remove(self.transport.username)
         self.selector.addItems(users_list - contacts_list)
 
-    # Обновляет таблицу известных пользователей, затем содержимое предполагаемых контактов
     def update_possible_contacts(self):
+        """
+        Метод обновления списка возможных контактов.
+        Запрашивает с сервера список известных пользователей и обновляет содержимое окна.
+        """
         try:
             self.transport.user_list_update()
         except OSError:
