@@ -15,7 +15,8 @@ class DelUserDialog(QDialog):
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.setModal(True)
 
-        self.selector_label = QLabel('Выберите пользователя для удаления:', self)
+        self.selector_label = QLabel(
+            'Выберите пользователя для удаления:', self)
         self.selector_label.setFixedSize(200, 20)
         self.selector_label.move(10, 0)
 

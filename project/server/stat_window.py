@@ -33,7 +33,11 @@ class StatWindow(QDialog):
         """Метод реализующий заполнение таблицы статистикой сообщений."""
         stat_list = self.db.message_history()
         lst = QStandardItemModel()
-        lst.setHorizontalHeaderLabels(['Имя клиента', 'Последний вход', 'Сообщений отправлено', 'Сообщений получено'])
+        lst.setHorizontalHeaderLabels(
+            ['Имя клиента',
+             'Последний вход',
+             'Сообщений отправлено',
+             'Сообщений получено'])
 
         for row in stat_list:
             user, last_seen, sent, recvd = row

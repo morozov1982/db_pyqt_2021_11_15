@@ -1,7 +1,8 @@
 import os.path
-import sys
-import argparse
-import logging
+from os import urandom
+from sys import argv
+from argparse import ArgumentParser
+from logging import getLogger
 
 from Cryptodome.PublicKey import RSA
 from PyQt5.QtWidgets import QApplication, QMessageBox
@@ -16,18 +17,23 @@ from client.main_window import ClientMainWindow
 from client.start_dialog import UserNameDialog
 
 # Инициализация клиентского логера
-logger = logging.getLogger('client')
+logger = getLogger('client')
 
 
 # Парсер аргументов коммандной строки
 @log
 def arg_parser():
-    parser = argparse.ArgumentParser()
+    """
+    Парсер аргументов командной строки, возвращает кортеж из 4 элементов:
+    адрес сервера, порт, имя пользователя, пароль.
+    Выполняет проверку на корректность номера порта.
+    """
+    parser = ArgumentParser()
     parser.add_argument('addr', default=DEFAULT_IP_ADDRESS, nargs='?')
     parser.add_argument('port', default=DEFAULT_PORT, type=int, nargs='?')
     parser.add_argument('-n', '--name', default=None, nargs='?')
     parser.add_argument('-p', '--password', default='', nargs='?')
-    namespace = parser.parse_args(sys.argv[1:])
+    namespace = parser.parse_args(argv[1:])
     server_address = namespace.addr
     server_port = namespace.port
     client_name = namespace.name
@@ -36,8 +42,9 @@ def arg_parser():
     # проверим подходящий номер порта
     if not 1023 < server_port < 65536:
         logger.critical(
-            f'Попытка запуска клиента с неподходящим номером порта: {server_port}. '
-            f'Допустимы адреса с 1024 до 65535. Клиент завершается.')
+            f'Попытка запуска клиента с неподходящим номером порта: '
+            f'{server_port}. Допустимы адреса с 1024 до 65535. '
+            f'Клиент завершается.')
         exit(1)
 
     return server_address, server_port, client_name, client_password
@@ -48,17 +55,19 @@ if __name__ == '__main__':
     server_address, server_port, client_name, client_password = arg_parser()
     logger.debug('Аргументы загружены')
 
-    client_app = QApplication(sys.argv)
+    client_app = QApplication(argv)
 
     start_dialog = UserNameDialog()
     # Если имя пользователя не было задано, то запросим его
     if not client_name or not client_password:
         client_app.exec_()
-        # Если пользователь ввёл имя и нажал OK, то сохраняем введённое имя и удаляем объект или выходим
+        # Если пользователь ввёл имя и нажал OK,
+        # то сохраняем введённое имя и удаляем объект или выходим
         if start_dialog.ok_pressed:
             client_name = start_dialog.client_name.text()
             client_password = start_dialog.client_password.text()
-            logger.debug(f'Используются: ПОЛЬЗОВАТЕЛЬ = {client_name}, ПАРОЛЬ = {client_password}.')
+            logger.debug(f'Используются: ПОЛЬЗОВАТЕЛЬ = {client_name}, '
+                         f'ПАРОЛЬ = {client_password}.')
         else:
             exit(0)
 
@@ -70,7 +79,7 @@ if __name__ == '__main__':
     key_file = os.path.join(dir_path, f'{client_name}.key')
 
     if not os.path.exists(key_file):
-        keys = RSA.generate(2048, os.urandom)
+        keys = RSA.generate(2048, urandom)
         with open(key_file, 'wb') as key:
             key.write(keys.export_key())
     else:
@@ -82,7 +91,8 @@ if __name__ == '__main__':
     db = ClientDatabase(client_name)
 
     try:
-        transport = ClientTransport(server_port, server_address, db, client_name, client_password, keys)
+        transport = ClientTransport(server_port, server_address, db,
+                                    client_name, client_password, keys)
         logger.debug("Транспорт готов")
     except ServerError as err:
         message = QMessageBox()

@@ -44,7 +44,8 @@ class Ui_MainClientWindow(object):
         self.list_messages.setObjectName("list_messages")
         self.text_message = QtWidgets.QTextEdit(self.centralwidget)
         self.text_message.setGeometry(QtCore.QRect(270, 400, 450, 80))
-        self.text_message.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.IBeamCursor))
+        self.text_message.viewport().setProperty(
+            "cursor", QtGui.QCursor(QtCore.Qt.IBeamCursor))
         self.text_message.setObjectName("text_message")
         self.btn_add_contact = QtWidgets.QPushButton(self.centralwidget)
         self.btn_add_contact.setGeometry(QtCore.QRect(9, 487, 122, 36))
@@ -52,14 +53,16 @@ class Ui_MainClientWindow(object):
         font.setPointSize(12)
         font.setKerning(True)
         self.btn_add_contact.setFont(font)
-        self.btn_add_contact.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btn_add_contact.setCursor(
+            QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_add_contact.setObjectName("btn_add_contact")
         self.btn_remove_contact = QtWidgets.QPushButton(self.centralwidget)
         self.btn_remove_contact.setGeometry(QtCore.QRect(139, 487, 122, 36))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.btn_remove_contact.setFont(font)
-        self.btn_remove_contact.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.btn_remove_contact.setCursor(
+            QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btn_remove_contact.setObjectName("btn_remove_contact")
         self.btn_clear = QtWidgets.QPushButton(self.centralwidget)
         self.btn_clear.setGeometry(QtCore.QRect(469, 487, 122, 36))
@@ -104,16 +107,24 @@ class Ui_MainClientWindow(object):
 
     def retranslateUi(self, MainClientWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainClientWindow.setWindowTitle(_translate("MainClientWindow", "Чат программа Alpha-релиз"))
-        self.label_contacts.setText(_translate("MainClientWindow", "Список контактов:"))
-        self.label_history.setText(_translate("MainClientWindow", "История сообщений:"))
-        self.label_new_message.setText(_translate("MainClientWindow", "Введите новое сообщение:"))
-        self.btn_add_contact.setText(_translate("MainClientWindow", "+ Добавить"))
-        self.btn_remove_contact.setText(_translate("MainClientWindow", "- Удалить"))
+        MainClientWindow.setWindowTitle(
+            _translate("MainClientWindow", "Чат программа Alpha-релиз"))
+        self.label_contacts.setText(
+            _translate("MainClientWindow", "Список контактов:"))
+        self.label_history.setText(
+            _translate("MainClientWindow", "История сообщений:"))
+        self.label_new_message.setText(
+            _translate("MainClientWindow", "Введите новое сообщение:"))
+        self.btn_add_contact.setText(
+            _translate("MainClientWindow", "+ Добавить"))
+        self.btn_remove_contact.setText(
+            _translate("MainClientWindow", "- Удалить"))
         self.btn_clear.setText(_translate("MainClientWindow", "Очистить"))
         self.btn_send.setText(_translate("MainClientWindow", "Отправить"))
         self.menu.setTitle(_translate("MainClientWindow", "Файл"))
         self.menu_2.setTitle(_translate("MainClientWindow", "Контакты"))
         self.menu_exit.setText(_translate("MainClientWindow", "Выход"))
-        self.menu_add_contact.setText(_translate("MainClientWindow", "Добавить контакт"))
-        self.menu_del_contact.setText(_translate("MainClientWindow", "Удалить контакт"))
+        self.menu_add_contact.setText(
+            _translate("MainClientWindow", "Добавить контакт"))
+        self.menu_del_contact.setText(
+            _translate("MainClientWindow", "Удалить контакт"))

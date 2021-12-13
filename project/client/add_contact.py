@@ -1,15 +1,16 @@
-import logging
+from logging import getLogger
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QLabel, QComboBox, QPushButton
 
-logger = logging.getLogger('client')
+logger = getLogger('client')
 
 
 class AddContactDialog(QDialog):
     """
     Диалог добавления пользователя в список контактов.
-    Предлагает пользователю список возможных контактов и добавляет выбранный в контакты.
+    Предлагает пользователю список возможных контактов
+    и добавляет выбранный в контакты.
     """
 
     def __init__(self, transport, db):
@@ -61,7 +62,8 @@ class AddContactDialog(QDialog):
     def update_possible_contacts(self):
         """
         Метод обновления списка возможных контактов.
-        Запрашивает с сервера список известных пользователей и обновляет содержимое окна.
+        Запрашивает с сервера список известных пользователей
+        и обновляет содержимое окна.
         """
         try:
             self.transport.user_list_update()

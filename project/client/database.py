@@ -1,25 +1,28 @@
 import os.path
-
 from datetime import datetime
 
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, DateTime
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, \
+    String, Text, DateTime
 from sqlalchemy.orm import mapper, sessionmaker
 
 
 class ClientDatabase:
     """
     Класс - оболочка для работы с базой данных клиента.
-    Использует SQLite базу данных, реализован с помощью SQLAlchemy ORM и используется классический подход.
+    Использует SQLite базу данных, реализован с помощью SQLAlchemy ORM
+    и используется классический подход.
     """
 
     class KnownUsers:
         """Класс - отображение для таблицы всех пользователей."""
+
         def __init__(self, user):
             self.id = None
             self.username = user
 
     class MessageStat:
         """Класс - отображение для таблицы статистики переданных сообщений."""
+
         def __init__(self, contact, direction, message):
             self.id = None
             self.contact = contact
@@ -29,6 +32,7 @@ class ClientDatabase:
 
     class Contacts:
         """Класс - отображение для таблицы контактов."""
+
         def __init__(self, name):
             self.id = None
             self.name = name
@@ -36,8 +40,11 @@ class ClientDatabase:
     def __init__(self, name):
         path = os.path.dirname(os.path.realpath(__file__))
         filename = f'client_{name}.db3'
-        self.db_engine = create_engine(f'sqlite:///{os.path.join(path, filename)}', echo=False, pool_recycle=7200,
-                                       connect_args={'check_same_thread': False})
+        self.db_engine = create_engine(
+            f'sqlite:///{os.path.join(path, filename)}',
+            echo=False,
+            pool_recycle=7200,
+            connect_args={'check_same_thread': False})
         self.metadata = MetaData()
 
         # Известные пользователи
@@ -73,7 +80,8 @@ class ClientDatabase:
 
     def add_contact(self, contact):
         """Метод добавляющий контакт в базу данных."""
-        if not self.session.query(self.Contacts).filter_by(name=contact).count():
+        if not self.session.query(
+                self.Contacts).filter_by(name=contact).count():
             contact_row = self.Contacts(contact)
             self.session.add(contact_row)
             self.session.commit()
@@ -103,30 +111,36 @@ class ClientDatabase:
 
     def get_contacts(self):
         """Метод возвращающий список всех контактов."""
-        return [contact[0] for contact in self.session.query(self.Contacts.name).all()]
+        return [contact[0] for contact in self.session.query(
+            self.Contacts.name).all()]
 
     def get_users(self):
         """Метод возвращающий список всех известных пользователей."""
-        return [user[0] for user in self.session.query(self.KnownUsers.username).all()]
+        return [user[0] for user in self.session.query(
+            self.KnownUsers.username).all()]
 
     def check_user(self, user):
         """Метод проверяющий существует ли пользователь."""
-        if self.session.query(self.KnownUsers).filter_by(username=user).count():
+        if self.session.query(
+                self.KnownUsers).filter_by(username=user).count():
             return True
-        else:
-            return False
+        return False
 
     def check_contact(self, contact):
         """Метод проверяющий существует ли контакт."""
         if self.session.query(self.Contacts).filter_by(name=contact).count():
             return True
-        else:
-            return False
+        return False
 
     def get_history(self, contact):
-        """Метод возвращающий историю сообщений с определённым пользователем."""
+        """
+        Метод возвращающий историю сообщений с определённым пользователем.
+        """
         query = self.session.query(self.MessageStat).filter_by(contact=contact)
-        return [(hist_row.contact, hist_row.direction, hist_row.message, hist_row.date) for hist_row in query.all()]
+        return [(hist_row.contact,
+                 hist_row.direction,
+                 hist_row.message,
+                 hist_row.date) for hist_row in query.all()]
 
 
 if __name__ == '__main__':

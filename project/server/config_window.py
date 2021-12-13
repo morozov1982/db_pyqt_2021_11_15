@@ -1,11 +1,13 @@
-import os
+import os.path
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, \
+    QFileDialog, QMessageBox
 
 
 class ConfigWindow(QDialog):
     """Класс окно настроек"""
+
     def __init__(self, config):
         super().__init__()
         self.config = config
@@ -59,7 +61,9 @@ class ConfigWindow(QDialog):
         self.ip_label.setFixedSize(180, 15)
 
         # Метка с напоминанием о пустом поле
-        self.ip_label_note = QLabel(' оставьте это поле пустым, чтобы\n принимать соединения с любых адресов.', self)
+        self.ip_label_note = QLabel(
+            ' оставьте это поле пустым, чтобы\n '
+            'принимать соединения с любых адресов.', self)
         self.ip_label_note.move(10, 168)
         self.ip_label_note.setFixedSize(500, 30)
 
@@ -89,7 +93,6 @@ class ConfigWindow(QDialog):
 
     def open_file_dialog(self):
         """Метод обработчик открытия окна выбора папки."""
-        global dialog
         dialog = QFileDialog(self)
         path = dialog.getExistingDirectory()
         path = path.replace('/', '\\')
@@ -99,9 +102,9 @@ class ConfigWindow(QDialog):
     def save_server_config(self):
         """
         Метод сохранения настроек.
-        Проверяет правильность введённых данных и, если всё правильно, сохраняет ini файл.
+        Проверяет правильность введённых данных и, если всё правильно,
+        сохраняет ini файл.
         """
-        global config_window
         message = QMessageBox()
         self.config['SETTINGS']['db_path'] = self.db_path.text()
         self.config['SETTINGS']['db_file'] = self.db_file.text()
@@ -117,6 +120,8 @@ class ConfigWindow(QDialog):
                 dir_path = os.path.join(dir_path, '..')
                 with open(f"{dir_path}/{'server.ini'}", 'w') as conf:
                     self.config.write(conf)
-                    message.information(self, 'OK', 'Настройки успешно сохранены!')
+                    message.information(
+                        self, 'OK', 'Настройки успешно сохранены!')
             else:
-                message.warning(self, 'Ошибка', 'Порт должен быть от 1024 до 65536')
+                message.warning(
+                    self, 'Ошибка', 'Порт должен быть от 1024 до 65536')
